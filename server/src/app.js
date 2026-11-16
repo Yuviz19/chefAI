@@ -26,7 +26,10 @@ app.use(cors({
 }));
 
 import healthCheckRoute from "./routes/healthCheck.routes.js";
+import recipeRouter from "./routes/recipe.routes.js";
+
 app.use("/api/v1/healthCheck", healthCheckRoute);
+app.use("/api/v1/recipes", recipeRouter);
 
 app.use(errorHandler);
 

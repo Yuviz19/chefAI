@@ -1,7 +1,10 @@
 import { ApiError } from "../utils/apiError.js";
+import "dotenv/config";
 
 const OLLAMA_URL = process.env.OLLAMA_BASE_URL;
 const MODEL = process.env.OLLAMA_MODEL;
+
+console.log("Service URL:", process.env.OLLAMA_BASE_URL);
 
 const connection = async function () {
   let output = {
@@ -106,66 +109,25 @@ const generateResponse = async function (ingredients) {
     ],
   };
 
-  let response;
-
-  try {
-    response = await fetch(`${OLLAMA_URL}/api/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages,
-        format: recipeSchema,
-        stream: false,
-      }),
-      signal: AbortSignal.timeout(120000),
-    });
-  } catch (error) {
-    if (
-      error.name === "TimeoutError" ||
-      error.name === "AbortError"
-    ) {
-      throw new ApiError(504, "Ollama request timed out");
-    }
-
-    throw new ApiError(503, "Unable to connect to Ollama");
-  }
+  const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages,
+      format: recipeSchema,
+      stream: false,
+    }),
+  });
 
   if (!response.ok) {
-    let message = "Ollama request failed";
-
-    try {
-      const errorData = await response.json();
-      message = errorData.error || message;
-    } catch {
-    }
-
-    throw new ApiError(502, message);
+    throw new ApiError(502, "Ollama request failed");
   }
 
-  let data;
-
-  try {
-    data = await response.json();
-  } catch {
-    throw new ApiError(502, "Invalid response from Ollama");
-  }
-
-  const content = data?.message?.content;
-
-  if (typeof content !== "string") {
-    throw new ApiError(502, "Unexpected Ollama response structure");
-  }
-
-  let recipe;
-
-  try {
-    recipe = JSON.parse(content);
-  } catch {
-    throw new ApiError(502, "Ollama returned invalid recipe JSON");
-  }
+  const data = await response.json();
+  const recipe = JSON.parse(data.message.content);
 
   return recipe;
 };
