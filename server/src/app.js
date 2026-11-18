@@ -14,15 +14,14 @@ app.use(express.urlencoded({
 }));
 app.use(express.static("public"));
 
-const allowOrigin = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
-  : "http://localhost:5173";
+// the below is a work around for the current project
+
+// const allowOrigin = process.env.CORS_ORIGIN
+//   ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
+//   : "http://localhost:5173";
 
 app.use(cors({
-  origin: allowOrigin,
-  credentials: true,
-  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "http://localhost:5173",
 }));
 
 import healthCheckRoute from "./routes/healthCheck.routes.js";
