@@ -6,17 +6,13 @@ export default function Main() {
   const [ ingredients, setIngredients ] = useState([]);
   const [ recipe, setRecipe ] = useState(null);
 
-  function handleSubmit(event) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  function submitIngerdient(formData) {
     const newIngredient = formData.get("ingredient");
     if (!newIngredient.trim()) {
       return;
     }
 
     setIngredients(prevIngredients => [...prevIngredients, newIngredient]);
-    event.currentTarget.reset();
-    console.log([...ingredients, newIngredient]);
   };
 
   function removeIngredient(index) {
@@ -39,7 +35,7 @@ export default function Main() {
   return (
     <main className="ingredientsMain">
       <h1 className="mainTitle">Let's Cook Something Special..</h1>
-      <form className="ingredientsForm" onSubmit={handleSubmit}>
+      <form className="ingredientsForm" action={submitIngerdient}>
         <input
           type="text"
           placeholder="e.g. oregano"
